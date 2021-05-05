@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package resourceManager;
+
+option go_package = "github.com/reynencourt/rc-resource-manager/v2/proto/resourceManager";
+
+// Storage
+message Storage {
+  string id = 1;
+  string name = 2;
+  bool visible_to_all = 3;
+  StorageType type = 4;
+  StorageOptions options = 5;
+}
+
+message StorageOptions {
+  string nfs_address = 1;
+  string nfs_mount_point = 2;
+  string nfs_mount_options = 3;
+}
+
+message StorageProject {
+  string storage_id = 1;
+  string project_id = 2;
+}
+
+message StorageProjectsRequest {
+  string storage_id = 1;
+}
+
+message StorageProjectsResponse {
+  map<string, string> projects = 1;
+}
+
+message GetStorageByStorageIdRequest {
+  string id = 1;
+}
+
+message AddStorageRequest {
+  Storage storage = 1;
+}
+
+message ListStorageRequest {
+  string project_id = 1;
+}
+
+message ListStorageResponse {
+  repeated ListStorageBundle items = 1;
+}
+
+message ListStorageBundle {
+  Storage storage = 1;
+  repeated string project_ids = 2;
+}
+
+message UpdateStorageRequest {
+  Storage storage = 1;
+}
+
+message DeleteStorageRequest {
+  string id = 1;
+}
+
+message UpdateStorageProjectsRequest {
+  repeated string project_ids = 1;
+  bool visible_to_all = 2;
+  string storage_id = 3;
+}
+
+message DetachStorageFromProjectRequest {
+  string project_id = 1;
+  string storage_id = 2;
+}
+
+message TestStorageRequest {
+  StorageType type = 1;
+  StorageOptions options = 2;
+}
+
+enum StorageAccessMode {
+  RWO = 0;
+  RWX = 1;
+}
+
+enum StorageType {
+  NFS = 0;
+  BLOCK = 1;
+  CEPHFS = 2;
+  RBD = 3;
+}
+
+// Storage class
+message StorageClass {
+  string id = 1;
+  string name = 2;
+  bool allow_volume_expansion = 3;
+  ReclaimPolicy reclaim_policy = 4;
+  bool archive_on_delete = 5;
+  string provisioner = 6;
+  string cluster_id = 7;
+  string storage_id = 8;
+  repeated StorageAccessMode access_modes = 9;
+}
+
+message DeleteStorageClassRequest {
+  string cluster_id = 1;
+  string id = 2;
+}
+
+message GetStorageClassRequest {
+  string cluster_id = 1;
+  string id = 2;
+}
+
+message ListStorageClassRequest {
+  string cluster_id = 1;
+}
+
+message ListStorageClassResponse {
+  repeated ListStorageClassBundle items = 1;
+}
+
+message ListStorageClassBundle {
+  Storage storage = 1;
+  StorageClass storage_class = 2;
+}
+
+message AddStorageClassRequest {
+  StorageClass storage_class = 1;
+}
+
+message UpdateStorageClassRequest {
+  StorageClass storage_class = 1;
+}
+
+message GetStorageClassResponse {
+  StorageClass storage_class = 1;
+}
+
+enum ReclaimPolicy {
+  PV_DELETE = 0;
+  PV_RETAIN = 1;
+}
+
+message DeploymentPVCsRequest {
+  string deployment_id = 1;
+  string cluster_id = 2;
+}
+
+message DeploymentPVCsResponse {
+  map<string, StorageClass> pvcs = 1;
+}
+
+// Common
+message ActionResponse {
+  bool success = 1;
+  string message = 2;
+  string id = 3;
+}
+
+message DetailedActionResponse {
+  bool success = 1;
+  string message = 2;
+  string id = 3;
+  repeated ActionResponseContext context = 4;
+}
+
+message ActionResponseContext {
+  StorageClass storage_class = 1;
+  Storage storage = 2;
+  string project_id = 3;
+  string cluster_id = 4;
+  string deployment_name = 5;
+}

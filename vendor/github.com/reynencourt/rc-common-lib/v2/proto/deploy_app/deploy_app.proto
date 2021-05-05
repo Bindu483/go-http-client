@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+option go_package = "github.com/reynencourt/rc-common-lib/v2/proto/deploy_app";
+
+package deploy_app;
+
+//TODO: reduce the number of deployment statuses
+enum DeploymentStatus {
+  Unknown = 0;
+  Deploying = 1;
+  Deployed = 2;
+  Failure = 3;
+  UpdatingConfig = 4;
+  Unhealthy = 5;
+  Suspended = 6;
+  Archived = 7;
+  Healthy = 8;
+  Upgrading = 9;
+  DeployingDependencies = 10;
+  DeployingDependenciesFailed = 11;
+  Initialising = 12;
+  InitialisingFailed = 13;
+}
+
+enum RcDeploymentEventType {
+  RcDeploymentEventTypeUnknown = 0;
+  AppDeploying = 1;
+  AppDeployed = 2;
+  AppDeployFailed = 3;
+  UpdateAppConfigInitiated = 4;
+  UpdateAppConfigFailure = 5;
+  UpdateAppConfigSuccess = 6;
+  AppArchive = 7;
+  AppDeleting = 9;
+  AppHealthCheck = 10;
+  UpgradeAppRollbackStarted = 11;
+  UpgradeAppRollbackComplete = 12;
+  UpgradeAppRollbackFailed = 13;
+  UpgradeAppPreprocessStarted = 14;
+  UpgradeAppPreprocessFailed = 15;
+  UpgradeAppPreprocessCompleted = 16;
+  UpgradeAppBackupInit = 21;
+  UpgradeAppBackupCompleted = 22;
+  UpgradeAppBackupFailed = 23;
+  UpgradeAppIngressControllerInit = 24;
+  UpgradeAppIngressControllerCompleted = 25;
+  UpgradeAppIngressControllerFailed = 26;
+  UpgradeAppStarted = 27;
+  UpgradeAppFailed = 28;
+  UpgradeAppCompleted = 29;
+  UpgradeAppPostprocessStarted = 30;
+  UpgradeAppPostprocessCompleted = 31;
+  UpgradeAppPostprocessFailed = 32;
+  DeployManagedServiceStarted = 33;
+  DeployManagedServiceSuccess = 34;
+  DeployManagedServiceFailed = 35;
+
+}
+
+enum AppType {
+  AppTypeUnknown = 0;
+  VendorApp = 1;
+  SystemApp = 2;
+  ManagedService = 3;
+}
+
+message RcDeploymentHealthStatus {
+  string name = 1;
+  DeploymentStatus health = 2;
+  repeated PodStatus failingPods = 3;
+}
+
+message PodStatus {
+  string name = 1;
+  string description = 2;
+  repeated Container containers = 3;
+}
+
+message Container {
+  string name = 1;
+  ContainerStatus status = 2;
+}
+
+message ContainerStatus {
+  string msg = 1;
+  string reason = 2;
+}
+
+enum DeploymentOperation {
+  DeploymentOperationUnknown = 0;
+  Deployment = 1;
+  ConfigUpdate = 2;
+  VersionUpgrade = 3;
+  DeleteBackup = 4;
+  Deleting = 5;
+}

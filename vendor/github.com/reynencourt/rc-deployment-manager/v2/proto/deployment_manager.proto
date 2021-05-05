@@ -1,0 +1,611 @@
+syntax = "proto3";
+
+package deploymentManager;
+
+option go_package = "github.com/reynencourt/rc-deployment-manager/v2/proto/deploymentManager";
+
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/rc_spec/rc_spec.proto";
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/deploy_app/deploy_app.proto";
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/resource/resource.proto";
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/app/app.proto";
+
+service DeploymentManager {
+  rpc ListDeployments (ListDeploymentsRequest) returns (ListDeploymentsResponse) {
+  }
+
+  // Custom app
+  rpc DeployCustomApp (DeployCustomAppRequest) returns (ActionResponse) {}
+  rpc RemoveCustomApp (RemoveCustomAppRequest) returns (ActionResponse) {}
+
+  rpc GetDeployment(GetDeploymentRequest)returns (GetDeploymentResponse){
+  }
+
+  rpc GetDeploymentConfig(GetDeploymentConfigRequest)returns(GetDeploymentConfigResponse){
+  }
+
+  rpc GetDeploymentEvents(GetDeploymentEventsRequest)returns(GetDeploymentEventsResponse){
+  }
+
+  rpc ListSolutions (ListSolutionsRequest) returns (ListSolutionsResponse) {
+  }
+
+  rpc GetSolution (GetSolutionRequest) returns (GetSolutionResponse) {
+  }
+
+  rpc ListSolutionVersions(ListSolutionVersionsReq)returns(ListSolutionVersionsRes){
+  }
+
+  rpc GetAppRcSpec(GetAppRcSpecReq)returns(GetAppRcSpecRes){
+  }
+
+  rpc GetAppPvcs(GetAppPvcsRequest) returns (app.AppPVCs) {}
+
+  rpc GetAppMetadata(GetAppMetadataReq)returns(GetAppMetadataRes){
+  }
+
+  rpc DeployApp (DeployAppRequest) returns (DeployAppResponse) {
+  }
+
+  rpc DownloadRelease (DownloadReleaseReq) returns (DownloadReleaseRes) {
+  }
+
+  rpc RemoveDeployment (RemoveDeploymentRequest) returns (RemoveDeploymentResponse) {
+  }
+
+  rpc IsDeploymentExist (IsDeploymentExistRequest) returns (IsDeploymentExistResponse) {
+  }
+
+  rpc GetCompatibleVersions (GetCompatibleVersionsRequest) returns (GetCompatibleVersionsResponse) {
+  }
+
+  rpc GetQosIndicator (GetQosIndicatorReq) returns (GetQosIndicatorRes) {
+  }
+
+  rpc ListQosIndicator (ListQosIndicatorReq) returns (ListQosIndicatorRes) {
+  }
+
+  rpc UpdateDeploymentConfiguration (UpdateDeploymentConfigurationReq) returns (UpdateDeploymentConfigurationRes) {
+  }
+
+  rpc ListBackup (ListBackupRequest) returns (ListBackupResponse) {
+  }
+
+  rpc DeleteBackup (DeleteBackupRequest) returns (DeleteBackupResponse) {
+  }
+
+  rpc UpgradeApp (UpgradeAppRequest) returns (UpgradeAppResponse) {
+  }
+
+  rpc ListDeploymentsWithFilter(ListDeploymentsWithFilterReq)returns (ListDeploymentsWithFilterRes){
+  }
+
+  rpc MoveCluster(MoveClusterReq)returns (MoveClusterRes){}
+}
+
+message MoveClusterReq{
+  string cluster_id = 1;
+  string project_id = 2;
+}
+
+message MoveClusterRes{
+  bool success = 1;
+}
+
+message GetAppMetadataReq{
+  string solution_id = 1;
+  string version = 2;
+}
+
+message GetAppMetadataRes{
+  AppMetadata data = 1;
+}
+
+message AppMetadata{
+  string solution_id = 1;
+  string solution_name = 2;
+  string icon = 3;
+  string app_version = 4;
+  string chart_version = 5;
+  AppDownloadState status = 6;
+  SolutionType type = 7;
+  string downloaded_time = 8;
+  Metadata chart_metadata = 9;
+  map<string, ManagedServiceDownloadDetails>managed_services_status = 10;
+}
+
+message GetSolutionRequest {
+  string solution_id = 1;
+}
+
+message GetSolutionResponse{
+  Solution data = 1;
+}
+
+message ListDeploymentsWithFilterReq{
+  map<string, string> query_params = 1;
+}
+
+message ListDeploymentsWithFilterRes{
+  repeated DeploymentInfo data = 1;
+}
+
+message UpgradeAppResponse {
+  bool success = 1;
+}
+
+message UpgradeAppRequest {
+  string upgrade_to_version = 1;
+  string deployment_id = 2;
+  DeployConfig config = 3;
+  string user = 4;
+}
+
+message DownloadReleaseReq {
+  string solution_id = 1;
+  string version = 2;
+}
+
+message DownloadReleaseRes {
+  bool success = 1;
+}
+
+message ResourceInfo {
+  resource.Resources requested = 1;
+  resource.Resources used = 2;
+}
+
+enum ManagedServiceDeployStatus {
+  ManagedServiceDeployStatusUnknown = 0;
+  ManagedServiceDeployStatusSuccess = 1;
+  ManagedServiceDeployStatusFailed = 2;
+  ManagedServiceDeployStatusProgress = 3;
+}
+
+message ManagedService {
+  string name = 1;
+  string version = 2;
+  map<string, string> input = 3;
+  map<string, string> output = 4;
+  ManagedServiceDeployStatus deploy_status = 5;
+}
+
+message DeployAppRequest {
+  string cluster_id = 1;
+  string solution_id = 2;
+  string version = 3;
+  string deployment_name = 4;
+  DeployConfig config = 5;
+  string user = 6;
+  string deployment_id = 7;
+  string project_id = 8;
+}
+
+message Config{
+  map<string, string> config = 1;
+}
+message DeployConfig{
+  Config app_config = 1;
+  map<string, Config> operator_config = 2;
+  map<string, string> storage_class_mapping = 3;
+}
+
+message DeployAppResponse {
+  bool success = 1;
+  string deployment_id = 2;
+}
+
+message GetAppRcSpecReq{
+  string solution_id = 1;
+  string version = 2;
+}
+
+message GetAppRcSpecRes{
+  string solution_id = 1;
+  string version = 2;
+  rc_spec.RCSpec rc_spec = 3;
+}
+
+message ListSolutionVersionsReq{
+  string solution_id = 1;
+}
+message ListSolutionVersionsRes{
+  repeated SolutionVersionMetadata versions = 1;
+}
+
+message SolutionVersionMetadata{
+  AppDownloadState download_state = 1;
+  string chart_version = 2;
+  string app_version = 3;
+  SolutionType app_type = 4;
+  string download_date = 5;
+}
+
+message ListSolutionsRequest {
+}
+
+message ListSolutionsResponse {
+  repeated Solution apps = 1;
+}
+
+message Solution {
+  string solution_name = 1;
+  string solution_id = 2;
+  string latest_chart_version = 3;
+  string latest_app_version = 4;
+  SolutionMetadata metadata = 5;
+  SolutionType app_type = 6;
+  bool show_warning = 7;
+  SolutionDeployments deployments = 8;
+  string vendor_name = 9;
+  string vendor_id = 10;
+}
+
+message SolutionDeployments{
+  int32 healthy = 1;
+  int32 unhealthy = 2;
+  int32 deploying = 3;
+}
+
+message SolutionMetadata {
+  string name = 1;
+  string icon = 2;
+  string home = 3;
+}
+
+message GetAppPvcsRequest {
+  string solution_id = 1;
+  string version = 2;
+}
+
+enum AppDownloadState {
+  AppDownloadStateUnknown = 0;
+  Success = 1;
+  AppDownloadStateFailed = 2;
+  InProgress = 3;
+  DownloadingDependencies = 4;
+  DownloadingDependenciesFailed = 5;
+}
+
+message GetDeploymentEventsRequest{
+  string deployment_id = 1;
+}
+message GetDeploymentEventsResponse{
+  repeated DeploymentEvent data = 1;
+}
+
+message DeploymentEvent{
+  string time = 1;
+  string event_triggered_by = 2;
+  EventTriggeredByAction event_triggered_by_action = 3;
+  string message = 4;
+  DeploymentEventLevel level = 5;
+}
+
+enum EventTriggeredByAction{
+  DeploymentEventType_Unknown = 0;
+  Deployment = 1;
+  ConfigUpdate = 2;
+  Upgrade = 3;
+  Backup = 4;
+  Restore = 5;
+  HealthCheck = 6;
+}
+
+message GetDeploymentConfigRequest{
+  string deployment_id = 1;
+}
+message GetDeploymentConfigResponse{
+  string deployment_id = 1;
+  rc_spec.RCSpec rc_spec = 2;
+  map<string, string> platform_variables = 3;
+}
+
+message GetDeploymentRequest{
+  string deployment_id = 1;
+}
+message GetDeploymentResponse{
+  DeploymentInfo data = 1;
+}
+
+message ListDeploymentsRequest {
+  string cluster_id = 1;
+  string solution_id = 2;
+}
+
+message ListDeploymentsResponse {
+  repeated DeploymentInfo data = 1;
+}
+
+message DeploymentInfo{
+  string deployment_id = 1;
+  string deployment_name = 2;
+  string cluster_id = 3;
+  string solution_id = 4;
+  string solution_name = 5;
+  string version = 6;
+  deploy_app.DeploymentStatus status = 7;
+  SolutionType app_type = 8;
+  string solution_icon = 9;
+  string updated_on = 10;
+  string project_id = 11;
+  bool show_warning = 12;
+  LastUpgradeOperationMetadata last_upgrade_metadata = 13;
+  string deployed_on = 14;
+  string started_on = 15;
+  string app_version = 16;
+  string launch_url = 17;
+}
+
+message LastUpgradeOperationMetadata {
+  UpgradeOperationType upgrade_operation_type = 1;
+  bool is_failure = 2;
+  UpdateStep Step = 3;
+  string time = 4;
+}
+
+enum UpgradeOperationType{
+  UpgradeOperationTypeUnknown = 0;
+  AppUpgrade = 1;
+  AppConfigUpdate = 2;
+}
+
+enum SolutionType{
+  SolutionType_Unknown = 0;
+  Vendor = 1;
+}
+
+
+message VendorSolution {
+  string solution_id = 1;
+  string solution_name = 2;
+  repeated SolutionVersion versions = 3 [deprecated = true];
+  string solution_logo = 4;
+  int32 in_progress = 5;
+  int32 downloaded = 6;
+  int32 failed = 7;
+  int32 total = 8;
+  string app_version = 9;
+  string download_date = 10;
+  string vendor_name = 11;
+  string vendor_id = 12;
+}
+
+enum EventType {
+  BackupEvent = 0;
+  IngressControllerEvent = 1;
+  RollbackEvent = 2;
+  RollbackResourceQuotaEvent = 3;
+}
+
+enum EventTypeStatus {
+  Completed = 0;
+  Init = 1;
+  Failed = 2;
+  Inprogress = 3;
+}
+
+message ListBackupRequest {
+  string deployment_id = 1;
+}
+
+message ListBackupResponse {
+  bool success = 1;
+  repeated BackupObject BackupObject = 2;
+}
+
+message BackupObject {
+  string status = 1;
+  string name = 2;
+  string created_at = 3;
+}
+
+message DeleteBackupRequest {
+  string deployment_id = 1;
+  repeated string backup_names = 2;
+}
+
+message DeleteBackupResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+enum K8sResourceType {
+  ALL = 0;
+  PV = 1;
+  PVC = 2;
+  SERVICE = 3;
+  INGRESS = 4;
+  SECRETS = 5;
+  CONFIGMAP = 6;
+  CRD = 7;
+}
+
+message UpdateDeploymentConfigurationReq {
+  string deployment_id = 1;
+  DeployConfig config = 2;
+  string user = 3;
+}
+
+message UpdateDeploymentConfigurationRes {
+  bool success = 1;
+}
+
+message GetQosIndicatorReq {
+  string version = 1;
+  string deployment_id = 2;
+  string User = 3;
+}
+
+message ListQosIndicatorReq {
+  string solution_id = 1;
+  string version = 2;
+}
+
+message ClusterQosIndicator {
+  string cluster_id = 1;
+  resource.Resources available_resources = 2;
+  resource.DeploymentQosIndicator qos_indicator = 3;
+}
+
+message ListQosIndicatorRes {
+  string solution_id = 1;
+  string version = 2;
+  resource.Resources app_resource_requirement = 3;
+  repeated ClusterQosIndicator cluster_qos_indicator = 4;
+}
+
+message GetQosIndicatorRes {
+  string solution_id = 1;
+  string version = 2;
+  resource.Resources app_resource_requirement = 3;
+  ClusterQosIndicator cluster_qos_indicator = 4;
+  string oldversion = 5;
+}
+
+message SolutionVersion {
+  string app_version = 1;
+  string version = 2;
+  AppDownloadState state = 3;
+}
+
+message GetCompatibleVersionsRequest {
+  string solution_id = 1;
+  string version = 2;
+}
+
+message VendorAppVersion {
+  string app_version = 1;
+  string chart_version = 2;
+}
+
+message GetCompatibleVersionsResponse{
+  repeated VendorAppVersion compatible_versions = 3;
+}
+
+message DeployCustomAppRequest {
+  string cluster_name = 1;
+  string name = 2;
+  string app_path = 3;
+  string namespace = 4;
+  map<string, string> values = 5;
+}
+
+message RemoveCustomAppRequest {
+  string cluster_name = 1;
+  string name = 2;
+  string namespace = 3;
+}
+
+message Meta {
+  string filter = 1;
+  string project = 2;
+}
+
+message RemoveDeploymentRequest {
+  string deployment_id = 1;
+}
+
+message RemoveDeploymentResponse {
+  bool success = 1;
+}
+
+message IsDeploymentExistRequest {
+  string deployment_id = 1;
+}
+
+message IsDeploymentExistResponse {
+  bool deployed = 1;
+}
+
+enum DeploymentEventLevel{
+  DeploymentEventLevel_Unknown = 0;
+  Debug = 1;
+  Error = 2;
+  Fatal = 3;Info = 4;Panic = 5;Trace = 6;Warn = 7;
+}
+
+enum ManagedServiceDownloadStatus {
+  ManagedServiceDownloadStatusUnknown = 0;
+  ManagedServiceDownloadStatusSuccess = 1;
+  ManagedServiceDownloadStatusFailed = 2;
+  ManagedServiceDownloadStatusProgress = 3;
+  ManagedServiceDownloadStatusToBeDownloaded = 4;
+}
+
+
+message ManagedServiceDownloadDetails{
+  ManagedServiceDownloadStatus status = 1;
+  string icon_url = 2;
+}
+
+message AppResourceRequirements {
+  map<string, resource.Resources> managed_services_resources = 1;
+  resource.Resources app_resource = 2;
+}
+
+message Metadata {
+  enum Engine {
+    UNKNOWN = 0;
+    GOTPL = 1;
+  }
+  string name = 1;
+  string home = 2;
+  repeated string sources = 3;
+  string version = 4;
+  string description = 5;
+  repeated string keywords = 6;
+  repeated Maintainer maintainers = 7;
+  string engine = 8;
+  string icon = 9;
+  string apiVersion = 10;
+  string condition = 11;
+  string tags = 12;
+  string appVersion = 13;
+  bool deprecated = 14;
+  string tillerVersion = 15;
+  map<string, string> annotations = 16;
+  string kubeVersion = 17;
+}
+
+message Maintainer {
+  string name = 1;
+  string email = 2;
+  string url = 3;
+}
+
+enum UpdateStep{
+  UpdateStep_Unknown = 0;
+  RemoveIngress = 1;
+  BackupDeployment = 2;
+  IncreaseResourceQuota = 3;
+  Process = 4;
+  RollBackResourceQuota = 5;
+  RollbackIngress = 6;
+}
+
+message MoveClusterMsg{
+  string cluster_id = 1;
+  string project_id = 2;
+  repeated string apps = 3;
+  int32 retry_count = 4;
+  int32 back_off_time = 5;
+}
+
+message DeploymentKongEvent{
+  string cluster_id = 1;
+  string deployment_id = 2;
+  DeploymentKongEventOperation operation = 3;
+  string sub_domain = 4;
+}
+
+enum DeploymentKongEventOperation{
+  DeploymentEventOperationUnknown = 0;
+  Create = 1;
+  Delete = 2;
+}
+
+message ActionResponse {
+  bool success = 1;
+  string message = 2;
+  string id = 3;
+}

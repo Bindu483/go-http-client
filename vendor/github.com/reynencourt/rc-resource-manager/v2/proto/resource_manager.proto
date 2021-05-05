@@ -1,0 +1,629 @@
+syntax = "proto3";
+
+package resourceManager;
+
+option go_package = "github.com/reynencourt/rc-resource-manager/v2/proto/resourceManager";
+
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/resource/resource.proto";
+import "vendor/github.com/reynencourt/rc-common-lib/v2/proto/cluster/cluster.proto";
+import "proto/storage.proto";
+import "proto/provisioner.proto";
+
+
+service ResourceManager {
+
+  rpc CreateK8sCluster (CreateK8sClusterRequest) returns (CreateK8sClusterResponse) {
+  }
+
+  rpc AddNodes (AddNodeToK8sClusterRequest) returns (AddNodeToK8sClusterResponse) {
+  }
+
+  rpc DeleteK8sCluster (DeleteK8sClusterReq) returns (DeleteK8sClusterRes) {
+  }
+
+  rpc ListNodes (ListNodeRequest) returns (ListNodeResponse) {
+  }
+
+  rpc RemoveNodes (RemoveNodeRequest) returns (RemoveNodeRes) {
+  }
+
+  rpc CanDeleteNode (CanDeleteNodeReq) returns (CanDeleteNodeRes) {}
+
+  rpc MoveCluster (MoveClusterReq) returns(MoveClusterRes){}
+
+  rpc GetHealth (HealthRequest) returns (HealthResponse) {
+  }
+
+  rpc GetKubeConfig (GetKubeConfigReq) returns (GetKubeConfigRes) {
+  }
+
+  rpc GetWorkerIPs (WorkerIPRequest) returns (WorkerIPResponse) {
+  }
+
+  //  To be reviewed (TBR)
+  rpc GetNodeIP (NodeIPRequest) returns (NodeIPResponse) {
+  }
+
+  rpc GetRcInfo (GetRcInfoReq) returns (GetRcInfoRes) {
+  }
+
+  rpc GetProfile (ProfileRequest) returns (ProfileResponse) {
+  }
+
+  rpc CreateNamespace (CreateNamespaceRequest) returns (CreateNamespaceResponse) {
+  }
+
+  rpc NamespaceExists (CreateNamespaceRequest) returns (CreateNamespaceResponse) {
+  }
+
+  rpc DeleteNamespace (DeleteNamespaceRequest) returns (DeleteNamespaceResponse) {
+  }
+
+  //  To be reviewed (TBR)
+  rpc GetLockInfo (LockInfoRequest) returns (ClusterLock) {}
+
+  //  rpc GetRookCephDasboardPassword (GetRookCephDasboardPasswordReq) returns (GetRookCephDasboardPasswordRes) {}
+
+  rpc WriteCloudConfig (WriteCloudConfigRequest) returns (WriteCloudConfigResponse) {}
+
+  rpc UpdateAmSMTPConfig (AmSmtpConfigRequest) returns (AmSmtpConfigResponse) {}
+
+
+  rpc IsClusterNameUnique(IsClusterNameUniqueReq) returns (IsClusterNameUniqueRes){}
+
+  rpc ListClusters(ListClustersReq) returns (ListClustersRes){}
+
+  rpc GetClusterDetails(GetClusterDetailsReq)returns(GetClusterDetailsRes){}
+
+  // Storage
+  rpc AddStorage (AddStorageRequest) returns (ActionResponse) {}
+  rpc ListStorage (ListStorageRequest) returns (ListStorageResponse) {}
+  rpc GetStorageByStorageId (GetStorageByStorageIdRequest) returns (Storage) {}
+  rpc UpdateStorage (UpdateStorageRequest) returns (DetailedActionResponse) {}
+  rpc DeleteStorage (DeleteStorageRequest) returns (DetailedActionResponse) {}
+  rpc UpdateStorageProjects(UpdateStorageProjectsRequest) returns (DetailedActionResponse) {}
+  rpc TestStorage(TestStorageRequest) returns (ActionResponse) {}
+  rpc StorageProjects(StorageProjectsRequest) returns (StorageProjectsResponse) {}
+
+  // Storage class
+  rpc AddStorageClass (AddStorageClassRequest) returns (ActionResponse) {}
+  rpc GetStorageClass (GetStorageClassRequest) returns (GetStorageClassResponse) {}
+  rpc ListStorageClass (ListStorageClassRequest) returns (ListStorageClassResponse) {}
+  rpc DeleteStorageClass (DeleteStorageClassRequest) returns (DetailedActionResponse) {}
+  rpc DeploymentPVCs (DeploymentPVCsRequest) returns (DeploymentPVCsResponse) {}
+
+  // Provisioner
+  rpc ProvisionerExists (ProvisionerExistsRequest) returns (ProvisionerExistsResponse) {}
+  rpc ProvisionerUsedBy (ProvisionerUsedByRequest) returns (ProvisionerUsedByResponse) {}
+}
+
+message MoveClusterReq{
+  string cluster_id = 1;
+  string project_id = 2;
+}
+
+message MoveClusterRes{
+  bool success = 1;
+}
+message RemoveNodeRes{
+  bool success = 1;
+}
+
+message GetClusterDetailsReq{
+  string cluster_id = 1;
+}
+
+message GetClusterDetailsRes{
+  ClusterDetails data = 1;
+}
+
+message ClusterDetails{
+  string cluster_name = 1;
+  string cluster_id = 2;
+  cluster.ClusterStatus status = 3;
+  cluster.ProviderType provider_type = 4;
+  bool is_ha = 5;
+  string created_at = 6;
+  Resources capacity = 7;
+  string project_id = 8;
+  Resources allocatable = 9;
+  Resources allocated = 10;
+
+}
+
+message ListNodeResponse {
+  ListNodeResponseData data = 1;
+}
+
+message ListNodeResponseData {
+  bool cluster_unreachable = 1;
+  repeated Node nodes = 2;
+  cluster.ClusterStatus cluster_status = 3;
+}
+
+message Node {
+  Resources capacity = 1;
+  cluster.NodeStatus status = 2;
+  bool memory_pressure = 3;
+  bool disk_pressure = 4;
+  bool pid_pressure = 5;
+  bool node_ready = 6;
+  string node_name = 7;
+  string ip = 8;
+  cluster.NodeType node_type = 9;
+  bool network_available = 10;
+  Resources total_allocatable = 11;
+  Resources allocated = 12;
+}
+
+enum NodeType{
+  NodeType_Unknown = 0;
+  Master = 1;
+  Etcd = 2;
+  Worker = 3;
+}
+
+message Resources{
+  resource.Resource cpu = 1;
+  resource.Resource memory = 2;
+  resource.Resource disk = 3;
+}
+
+message ListClustersReq {
+}
+
+message ListClustersRes{
+  repeated ClusterMetadata data = 1;
+}
+
+message ClusterMetadata{
+  string cluster_name = 1;
+  string cluster_id = 2;
+  cluster.ClusterStatus status = 3;
+  cluster.ProviderType provider_type = 4;
+  bool is_ha = 5;
+  string created_at = 6;
+  ClusterMetaStats stats = 7;
+  string project_id = 8;
+}
+
+message ClusterMetaStats {
+  ClusterNodeStats master = 1;
+  ClusterNodeStats etcd = 2;
+  ClusterNodeStats worker = 3;
+  DeploymentStats deployments = 4;
+}
+
+message DeploymentStats{
+  int32 total_count = 1;
+}
+message ClusterNodeStats{
+  int32 total_count = 1;
+  int32 in_creation = 2;
+  int32 in_deletion = 3;
+}
+
+message IsClusterNameUniqueReq{
+  string cluster_id = 1;
+}
+
+message IsClusterNameUniqueRes{
+  bool unique = 1;
+}
+
+message CreateK8sClusterRequest{
+  cluster.ProviderType provider_type = 1;
+  K8sSpec k8s_spec = 2;
+  string project_id = 3;
+  string created_by = 4;
+}
+message AddNodeToK8sClusterRequest{
+  string cluster_id = 1;
+  AddNodeK8sSpec k8s_spec = 2;
+  string created_by = 3;
+}
+
+message AddNodeK8sSpec {
+  uint32 worker_instance_count = 1;
+  string instance_size = 2;
+  uint32 storage_size = 3;
+  repeated string worker_instance_ips = 4;
+}
+
+message AddNodeToK8sClusterResponse{
+  bool success = 1;
+}
+message K8sSpec {
+  string cluster_name = 1;
+  uint32 master_instance_count = 2;
+  uint32 worker_instance_count = 3;
+  uint32 etcd_instance_count = 4;
+  string instance_size = 5;
+  uint32 storage_size = 6;
+
+
+  repeated string master_instance_ips = 7;
+  repeated string worker_instance_ips = 8;
+  repeated string etcd_instance_ips = 9;
+
+  string service_cluster_cidr = 10;
+  string pod_cluster_cidr = 11;
+  int32 node_prefix = 12;
+  string template = 13;
+  bool deploy_falco = 14;
+  string cluster_id = 15;
+}
+message CreateK8sClusterResponse{
+  bool success = 1;
+  string cluster_id = 2;
+}
+
+message UpgradeInfrastructureRequest {
+  string cluster_name = 1;
+  string kube_version = 2;
+}
+
+message UpgradeInfrastructureResponse {
+  bool success = 1;
+}
+
+message CanDeleteNodeReq {
+  repeated string node_names = 1;
+  string cluster_id = 2;
+}
+
+message CanDeleteNodeRes {
+  resource.NodeDeletionQosIndicator qos_indicator = 1;
+}
+
+message AmSmtpConfigRequest {
+  string Host = 1;
+  string Port = 2;
+  string SmtpUserName = 3;
+  string SmtpPassword = 4;
+  string SenderEmail = 5;
+  string ReceiverEmail = 6;
+  bool TlsEnabled = 7;
+}
+
+message AmSmtpConfigResponse {
+  bool Ok = 1;
+}
+
+message WriteCloudConfigRequest {
+  bytes info = 1;
+}
+
+message WriteCloudConfigResponse {
+  bool ok = 1;
+}
+
+message GetRookCephDasboardPasswordReq {
+  string cluster_name = 1;
+}
+
+message GetRookCephDasboardPasswordRes {
+  string password = 1;
+}
+
+message LockInfoRequest {
+  string cluster_id = 1;
+}
+
+message ClusterLock {
+  string created_at = 1;
+  string valid_til = 2;
+  string node_name = 3;
+  string action = 4;
+}
+
+message DeleteIngressRequest {
+  string ingress_name = 1;
+  string namespace = 2;
+  string cluster_id = 3;
+  string cluster_config = 4;
+}
+
+message DeleteIngressResponse {
+  bool success = 1;
+}
+
+message DeleteNamespaceRequest {
+  string cluster_id = 1;
+  string namespace = 2;
+}
+
+message DeleteNamespaceResponse {
+  bool success = 1;
+}
+
+message CreateNamespaceRequest {
+  string namespace = 1;
+  string cluster_id = 2;
+}
+
+
+message CreateNamespaceResponse {
+  bool success = 1;
+}
+
+message NodeIPRequest {
+  string node_name = 1;
+  string cluster_id = 2;
+}
+
+message NodeIPResponse {
+  string ip = 1;
+}
+
+message ProfileRequest {
+}
+message ProfileResponse {
+  cluster.ProviderType provider_type = 1;
+  string region = 2;
+}
+
+message GetRcInfoReq {
+}
+
+message GetRcInfoRes {
+  string response = 1;
+}
+
+message ApplyIngressRequest {
+  string cluster_id = 1;
+  string ingress = 2;
+  string cluster_config = 3;
+}
+
+message ApplyIngressResponse {
+  bool ok = 1;
+}
+
+message WorkerIPRequest {
+  string cluster_id = 1;
+}
+
+message WorkerIPResponse {
+  repeated string ip = 1;
+}
+
+message GetKubeConfigRes {
+  string cluster_config = 1;
+}
+
+message GetKubeConfigReq {
+  string cluster_id = 1;
+}
+
+message RegionTypeRequest {
+  cluster.ProviderType provider_type = 1;
+}
+
+message RegionTypeResponse {
+  repeated string regions = 1;
+}
+
+message MachineTypeRequest {
+  cluster.ProviderType provider_type = 1;
+}
+
+message MachineTypeResponse {
+  repeated string machine_types = 1;
+}
+
+message HealthRequest {
+}
+
+message HealthResponse {
+  string ok = 1;
+}
+
+message RemoveNodeRequest {
+  string cluster_id = 1;
+  repeated string nodeNames = 3;
+  bool forceRemove = 4;
+}
+
+
+//message Cluster {
+//  string cluster_name = 1 [json_name = "cluster_name"];
+//  bool in_progress = 2 [json_name = "in_progress"];
+//  bool failed = 3;
+//  ProviderType provider_type = 4;
+//  string creation_date = 5 [json_name = "creation_date"];
+//  bool deploy_falco = 6 [json_name = "deploy_falco"];
+//}
+
+//message GetClusterListResponse {
+//  repeated Cluster cluster = 1;
+//}
+
+message DeleteK8sClusterReq {
+  string cluster_id = 1;
+  string project_id = 2;
+  string filters = 3;
+}
+
+message DeleteK8sClusterRes {
+  bool success = 2;
+}
+
+message ProvisionStatus {
+  int64 progress = 1 [json_name = "progress"];
+  int64 time_passed_since_in_second = 2 [json_name = "time_passed_since_in_second"];
+  bool success = 3 [json_name = "success"];
+  ClusterStatus last_step = 4 [json_name = "last_step"];
+}
+
+message ProvisioningStateResponse {
+  ProvisionStatus provision_status = 1 [json_name = "provision_status"];
+}
+
+message ProvisioningStateRequest {
+  string cluster_id = 1;
+}
+
+message LogsRequest {
+  string cluster_name = 1;
+}
+
+message LogsResponse {
+  string cluster_name = 1;
+  string operation_log = 2;
+}
+
+message ListNodeRequest {
+  string cluster_id = 1;
+}
+
+message GCPProvider {
+  string gcp_credentials = 1 [json_name = "gcp_credentials"];
+  string gcp_project = 2 [json_name = "gcp_project"];
+  string gcp_region = 3 [json_name = "gcp_region"];
+}
+
+message NodeRequest {
+  string cluster_id = 1;
+}
+
+
+
+message InstanceParameterRequest {
+  K8s k8s_definition = 2;
+  bool forced = 3;
+  cluster.ProviderType provider_type = 4;
+}
+
+message Network {
+  string vpcCidr = 1;
+  Subnet privateSubnet = 2;
+  Subnet publicSubnet = 3;
+}
+
+message K8s {
+  string cluster_name = 1;
+  uint32 master_instance_count = 2;
+  string instance_size = 3;
+  uint32 worker_instance_count = 4;
+  uint32 etcd_instance_count = 5;
+  repeated string master_instance_ips = 6;
+  repeated string worker_instance_ips = 7;
+  repeated string etcd_instance_ips = 8;
+  uint32 storage_size = 11;
+  string service_cluster_cidr = 12;
+  string pod_cluster_cidr = 13;
+  int32 node_prefix = 14;
+  string template = 15;
+  bool deploy_falco = 16;
+  int32 project_id = 17;
+}
+
+message Subnet {
+  repeated string subnetCidr = 1;
+}
+
+message InfrastructureActionResponse {
+  bool success = 1 [json_name = "success"];
+  string action = 2 [json_name = "action"];
+}
+
+message KubeParameterRequest {
+  repeated string master_ip = 1;
+  repeated string worker_ip = 2;
+  repeated string etcd_ip = 3;
+  string apiserver_lbdn = 5;
+  string cluster_name = 6;
+  string user = 8;
+  string apiserver_lb_vip = 9;
+  ClusterAction cluster_action = 10;
+}
+
+message KubeParameterResponse {
+  bool success = 1;
+  string kubeconfig = 2;
+}
+
+
+
+enum ClusterAction {
+  UnknownClusterAction = 0;
+  Create = 1;
+  AddNode = 2;
+  RemoveNode = 3;
+  Delete = 4;
+  Upgrade = 5;
+}
+
+enum ProvisionStep {
+  ProvisionStep_Unknown = 0;
+  Init = 1;
+  ANSIBLE_APPLY = 2;
+  COPYING_CONFIG = 3;
+  STEP_COMPLETED = 4;
+  STEP_FAILED = 5;
+  DELETE_CLUSTER_STARTED = 6;
+  DELETE_CLUSTER_FAILED = 7;
+  VM_REQUESTED = 8;
+  VM_CREATED = 9;
+  UPGRADE_CLUSTER_STARTED = 10;
+  UPGRADE_CLUSTER_FAILED = 11;
+}
+
+enum NodeStep {
+  NodeStep_UNKNOWN = 0;
+  NodeStep_ADD_NODE_STARTED = 1;
+  NodeStep_ADD_NODE_FAILED = 3;
+  NodeStep_REMOVE_NODE_STARTED = 4;
+  NodeStep_REMOVE_NODE_FAILED = 6;
+  NodeStep_READY = 7;
+  NodeStep_INITIALIZED = 8;
+  NodeStep_UNREADY = 9;
+  NodeStep_UNAVAILABLE = 10;
+  NodeStep_NETWORK_UNAVAILABLE = 11;
+  NodeStep_FAILED_TO_ACQUIRE = 12;
+  NodeStep_ACQUIRED = 13;
+}
+
+enum ClusterStatus{
+  ClusterStatus_Unknown = 0;
+  Initialising = 1;
+  CreateClusterInProgress = 2;
+  Success = 3;
+  CreateClusterFailed = 4;
+  DeleteClusterFailed = 5;
+  DeleteClusterInProgress = 6;
+  NodeDeletionInProgress = 7;
+  NodeAdditionInProgress = 8;
+}
+
+enum NodeStatus{
+  NodeStatus_Unknown = 0;
+  NodeStatusInitialising = 1;
+  Ready = 3;
+  NodeStatusFailed = 4;
+  NodeStatusNotReady = 5;
+  AddNodeInProgress = 6;
+  AddNodeFailed = 7;
+  DeleteNodeInProgress = 8;
+  DeleteNodeFailed = 9;
+  NetworkUnavailable = 10;
+}
+
+message ClusterKongEvent {
+  string cluster_id = 1;
+  repeated string hosts = 2;
+  KongOperationType operation = 3;
+}
+
+message NodeKongEvent {
+  string cluster_id = 1;
+  string ip = 2;
+  KongOperationType operation = 3;
+}
+
+enum KongOperationType {
+  KongOperationTypeUnknown = 0;
+  KongOperationTypeCreate = 1;
+  KongOperationTypeDelete = 2;
+}

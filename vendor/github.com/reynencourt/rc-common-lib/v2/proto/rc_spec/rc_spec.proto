@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+option go_package = "github.com/reynencourt/rc-common-lib/v2/proto/rc_spec";
+
+package rc_spec;
+
+message RCSpec {
+  RCConfigurationSpec config = 1;
+  RCSolutionInfo solution_info = 2;
+  RCPostDeploy post_deploy = 3;
+  RCServices services = 4;
+  RCUpgrades upgrades = 5;
+  map<string, OperatorConfig> managed_services = 6;
+  map<string, string> platform_variables = 7;
+}
+
+message RCConfigurationSpec {
+  repeated Field field = 1;
+}
+
+message Field {
+  string field_name = 1;
+  FieldType field_type = 2;
+  string field_description = 3;
+  string default_value = 4;
+  string addition_help_text = 5;
+  bool required = 6;
+  string field_value = 7;
+  repeated string values = 8;
+  bool limits = 9;
+  int32 upper_limit = 10;
+  int32 lower_limit = 11;
+  bool immutable = 12;
+  string field_label = 13;
+}
+
+enum FieldType {
+  FieldTypeUnknown = 0;
+  SmallText = 1;
+  LargeText = 2;
+  Integer = 3;
+  Enum = 4;
+  Boolean = 5;
+  Secret = 6;
+  RcSupplied = 7;
+  ReadOnly = 8;
+  UploadSecret = 9;
+  UploadConfig = 10;
+}
+
+message RCSolutionInfo {
+  string solution_id = 1;
+  string vendor_id = 2;
+  string api_prefix = 3;
+}
+
+message RCPostDeploy {
+  string post_install_readiness_uri = 1;
+  string post_install_completed_uri = 2;
+  RCPostDeploySteps steps = 3;
+}
+
+message RCPostDeploySteps {
+  int32 step_number = 1;
+  RCPostDeployStepType step_type = 2;
+  string uri = 3;
+  HttpMethod method = 4;
+  HttpPayloadType payload_type = 5;
+  string payload = 6;
+  bool success_mandatory = 7;
+  string instruction = 8;
+}
+
+enum HttpPayloadType {
+  HttpPayloadUnknown = 0;
+  JSON = 1;
+  XML = 2;
+}
+
+enum HttpMethod {
+  HttpMethodUnknown = 0;
+  GET = 1;
+  POST = 2;
+  PUT = 3;
+  DELETE = 4;
+  HEAD = 5;
+  PATCH = 6;
+}
+
+enum RCPostDeployStepType {
+  RCPostDeployStepTypeUnknown = 0;
+  Endpoint = 1;
+  Instruction = 2;
+}
+
+message RCServices {
+  repeated Service expose = 1;
+}
+
+message Service {
+  string name = 1;
+  string service_name = 2;
+  int32 port = 3;
+  string domain_prefix = 4;
+  bool primary = 5;
+}
+
+message RCUpgrades {
+  repeated string compatible_versions = 1;
+  string from_version = 2;
+}
+
+message RCPipeline {
+  RCPipelineVariables rc_pipeline_variables = 1;
+}
+
+message RCPipelineVariables {
+  string helm_deployment_timeout = 1;
+}
+
+message OperatorConfig {
+  string version = 1;
+  repeated Field config = 2;
+}
+
+enum RCManagedService {
+  RCManagedServiceUnknown = 0;
+  ArangoDB = 1;
+}

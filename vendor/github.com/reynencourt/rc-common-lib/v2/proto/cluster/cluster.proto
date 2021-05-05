@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+option go_package = "github.com/reynencourt/rc-common-lib/v2/proto/cluster";
+
+import "proto/deploy_app/deploy_app.proto";
+
+
+package cluster;
+
+message ClusterInfo{
+  string id = 1;
+  string project_id = 2;
+  string created_by = 3;
+  string name = 4;
+  ClusterStatus status = 5;
+  repeated Node nodes = 6;
+  ProviderType provider_type = 7;
+  string creation_date = 8;
+  string updated_date = 9;
+  string template = 10;
+  string pod_cidr = 11;
+  map<string, bool> post_hooks = 12;
+  map<string, string> cluster_config = 13;
+  bool deploy_falco = 14;
+  int32 node_prefix = 15;
+  map<string, DeploymentsInfo> deployments = 16;
+}
+
+message DeploymentsInfo {
+  string deployment_id = 1;
+  string solution_id = 2;
+  string version = 3;
+  string solution_icon = 4;
+  deploy_app.DeploymentStatus status = 5;
+}
+
+enum ProviderType {
+  ProviderType_Unknown = 0;
+  AWS = 1;
+  Azure = 3;
+  OnPrem = 2;
+  GCP = 4;
+}
+
+enum ClusterStatus{
+  ClusterStatus_Unknown = 0;
+  Initialising = 1;
+  CreateClusterInProgress = 2;
+  Success = 3;
+  CreateClusterFailed = 4;
+  DeleteClusterFailed = 5;
+  DeleteClusterInProgress = 6;
+  NodeDeletionInProgress = 7;
+  NodeAdditionInProgress = 8;
+}
+
+message Node {
+  string ip = 1;
+  int32 number = 2;
+  NodeType type = 3;
+  string host_name = 4;
+  OsType os_type = 5;
+  NodeStatus status = 6;
+  string user = 7;
+  string creation_time = 8;
+}
+
+enum NodeType{
+  NodeType_Unknown = 0;
+  Master = 1;
+  Etcd = 2;
+  Worker = 3;
+}
+
+enum NodeStatus{
+  NodeStatus_Unknown = 0;
+  NodeStatusInitialising = 1;
+  Ready = 3;
+  NodeStatusFailed = 4;
+  NodeStatusNotReady = 5;
+  AddNodeInProgress = 6;
+  AddNodeFailed = 7;
+  DeleteNodeInProgress = 8;
+  DeleteNodeFailed = 9;
+  NetworkUnavailable = 10;
+}
+
+enum OsType {
+  OsType_Unknown = 0;
+  Ubuntu1804 = 1;
+  Centos7 = 2;
+  Centos8 = 3;
+  Rhel7 = 4;
+  Rhel8 = 5;
+}

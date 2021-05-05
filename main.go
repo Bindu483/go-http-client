@@ -7,13 +7,17 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
 )
 
-func main() {
+func main1() {
 	res, err := http.Get("https://jsonplaceholder.typicode.com/users/1")
 	if err != nil {
 		log.Fatal(err)
 
+	}
+	if res.StatusCode != http.StatusOK {
+		log.Fatal(res.StatusCode)
 	}
 	data, _ := ioutil.ReadAll(res.Body)
 	res.Body.Close()

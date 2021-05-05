@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package resourceManager;
+
+option go_package = "github.com/reynencourt/rc-resource-manager/v2/proto/resourceManager";
+
+// Provisioner
+message ProvisionerExistsRequest {
+  string name = 1;
+  string cluster_id = 2;
+}
+
+message ProvisionerExistsResponse {
+  bool success = 1;
+}
+
+message ProvisionerUsedByRequest {
+  string storage_id = 1;
+  string cluster_id = 2;
+}
+
+message ProvisionerUsedByResponse {
+  repeated string storage_classes_ids = 1;
+}

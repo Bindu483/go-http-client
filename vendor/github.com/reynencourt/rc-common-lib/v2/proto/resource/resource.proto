@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option go_package = "github.com/reynencourt/rc-common-lib/v2/proto/resource";
+
+package resource;
+
+message Resources {
+  ResourceDefinition cpu = 1;
+  ResourceDefinition memory = 2;
+}
+
+message NodeResource {
+  Resource cpu = 1;
+  Resource memory = 2;
+  Resource disk = 3;
+}
+
+message Resource {
+  int64 value = 1;
+  int32 scale = 2;
+}
+
+message ResourceDefinition {
+  int64 minimum = 1;
+  int64 maximum = 2;
+  sint32 scale = 3;
+}
+
+message ClusterResourceInfo {
+  string cluster_id = 1;
+  int32 provider = 2;
+  NodeResource capacity = 3;
+  NodeResource allocatable = 4;
+  Resources used = 5;
+  NodeResourceInfo nodes = 6;
+  string cluster_name = 7;
+}
+
+message NodeResourceInfo {
+  repeated NodeInfo node = 1;
+}
+
+message NodeInfo {
+  string name = 1;
+  string ip = 2;
+  string role = 3;
+  NodeResource capacity = 4;
+  NodeResource allocatable = 5;
+}
+
+message DeploymentQosIndicator {
+  bool can_deploy = 1;
+  double cpu_qos_indicator = 2;
+  double mem_qos_indicator = 3;
+}
+
+message NodeDeletionQosIndicator {
+  bool can_delete = 1;
+  double cpu_qos_indicator = 2;
+  double mem_qos_indicator = 3;
+}
