@@ -134,9 +134,3 @@ func main() {
 
 }
 
-type loginResponse struct {
-	Meta MetaLoginResponse `json:"meta"`
-}
-type MetaLoginResponse struct {
-	Token string `json:"token"`
-}
