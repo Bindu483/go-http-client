@@ -1,12 +1,14 @@
 module github.com/Bindu483/go-http-client
 
-require github.com/reynencourt/rc-deployment-manager/v2 v2.1.0-RC-20210419-1324
+require github.com/reynencourt/rc-deployment-manager/v2 v2.1.0-RC-20210419-1324 // indirect
+
 require (
+	github.com/reynencourt/rc-controller-backend/v2 v2.0.6
 	github.com/reynencourt/rc-resource-manager/v2 v2.1.0-RC-20210330-1612
 )
 
 replace (
-github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
+	github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v43.3.0+incompatible
 	github.com/Azure/go-autorest => github.com/Azure/go-autorest v14.2.0+incompatible
 	github.com/opencontainers/runc => github.com/opencontainers/runc v0.1.1
 	github.com/prometheus/client_model => github.com/prometheus/client_model v0.2.0
@@ -35,6 +37,7 @@ github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v43.3.0+i
 	k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers v0.19.4
 	k8s.io/metrics => k8s.io/metrics v0.19.4
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.19.4
+	golang.org/x/sys => golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
 )
 
 go 1.16

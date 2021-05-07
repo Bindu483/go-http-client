@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/reynencourt/rc-controller-backend/v2/pkg/router/route/nodeoperations"
-	resourceManager "github.com/reynencourt/rc-resource-manager/v2/proto"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -108,12 +107,8 @@ func main() {
 	//	log.Fatal(string(responseByte))
 	//}
 	var createAddNode = nodeoperations.AddNodeRequest{
-		ClusterId: "three",
-		K8SSpec: &resourceManager.AddNodeK8SSpec{
-
-			WorkerInstanceIps: []string{"10.0.1.14"},
-		},
 		CreatedBy: "admin@priyolahiri.in",
+		WorkerIps: []string{""},
 	}
 	postBody, err = json.Marshal(&createAddNode)
 	if err != nil {
